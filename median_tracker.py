@@ -32,7 +32,7 @@ class median_tracker(object):
     def pop_min(self):
         return h.heappop(self.min_heap)
     def pop_max(self):
-        return h.heappop(self.max_heap)
+        return -h.heappop(self.max_heap)
     def len_min(self):
         return len(self.min_heap)
     def len_max(self):
@@ -42,35 +42,34 @@ class median_tracker(object):
     def get_max(self): #NOTE will only return the biggest element in the smallest half
         return -self.max_heap[0]
     def view_min(self):
-        return str(self.min_heap)
+        return str(sorted(self.min_heap))
     def view_max(self):
-        return str(list(reversed(list(map(op.neg,self.max_heap)))))
+        return str(list(reversed(list(map(op.neg, sorted(self.max_heap))))))
 
     def append(self, *elems):
         #print("append({elems})".format(elems=elems))
         list(map(self.append_elem, elems))
     def append_elem(self, elem):
         #print("append_elem({elem})".format(elem=elem))
-        self.push_max(elem)
         #start cases, cannot simply put this logic in the logic 
         #that follows, the smaller half is the default half
-        #if(self.len_min()==0 and self.len_max()==0):
-        #    self.push_max(elem)
-        #    return
+        if(self.len_min()==0 and self.len_max()==0):
+            self.push_max(elem)
+            return
 
         #decide where to put it
-        #if(elem<=self.get_max()): 
-        #    #fits in the smallest half
-        #    self.push_max(elem)
-        #elif(self.len_min()==0 or elem>=self.get_min()): 
-        #    #fits in the biggest half
-        #    self.push_min(elem)
-        #else:
-        #    raise Exception()
+        if(elem<self.get_max()): 
+            #fits in the smallest half
+            self.push_max(elem)
+        elif(self.len_min()==0 or elem>=self.get_min()): 
+            #fits in the biggest half
+            self.push_min(elem)
+        else:
+            #doesn't matter
+            self.push_max(elem)
 
         #rebalance the heaps #NOTE can only be unbalanced by one 
         if(abs(self.len_max()-self.len_min())>1): 
-            print("b4=",self)
             #unbalanced, let's go ``robin hood''
             if(self.len_min()<self.len_max()):
                 self.push_min(self.pop_max()) 
@@ -78,7 +77,6 @@ class median_tracker(object):
                 self.push_max(self.pop_min()) 
             else:
                 raise Exception()
-            print("af=",self)
 
     def __str__(self):
         """shows both heaps flatted out with each others roots touching"""
@@ -103,20 +101,18 @@ class median_tracker(object):
             raise Exception()
 
 
-
 mt = median_tracker(1,2,3,4,5,6,7,8)
 mt.median()
 mt = median_tracker(1,2,3,4,5,6,7)
 mt.median()
-
 
 ref_median = utils.median
 
 def random_list(size, domain=(-2,2)):
     return (rndm.uniform(domain[0], domain[1]) for i in range(size))
 
-testsuite_size = 1
-max_test_size = 5
+testsuite_size = 10
+max_test_size = 1000
 
 tests = map(
     random_list,
@@ -135,9 +131,7 @@ def measure_test(test):
     tracker = median_tracker(*test)
     tracker_median = tracker.median() 
     err = abs(ref-tracker_median)
-    if(err>0.01 and False):
-        print(test)
-        print(tracker)
+    if(err>0.0001):
         print(ref,"vs.",tracker_median)
     return err
 

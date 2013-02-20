@@ -100,12 +100,6 @@ class median_tracker(object):
         else:
             raise Exception()
 
-
-mt = median_tracker(1,2,3,4,5,6,7,8)
-mt.median()
-mt = median_tracker(1,2,3,4,5,6,7)
-mt.median()
-
 ref_median = utils.median
 
 def random_list(size, domain=(-2,2)):
@@ -143,5 +137,4 @@ print("sum(|error|)={error}".format(
         )
     )
 ))
-
 

@@ -5,7 +5,7 @@ import collections  as c
 import operator as op
 import random as rndm
 import itertools as it
-
+import functools as ft
 
 class median_tracker(object):
     """
@@ -41,49 +41,60 @@ class median_tracker(object):
         return self.min_heap[0]
     def get_max(self): #NOTE will only return the biggest element in the smallest half
         return -self.max_heap[0]
+    def view_min(self):
+        return str(self.min_heap)
+    def view_max(self):
+        return str(list(reversed(list(map(op.neg,self.max_heap)))))
 
     def append(self, *elems):
-        map(self.append_elem, elems)
+        #print("append({elems})".format(elems=elems))
+        list(map(self.append_elem, elems))
     def append_elem(self, elem):
-        #start cases
-        if(self.len_min()==0 and self.len_max()==0):
-            self.push_max(elem)
-            return
+        #print("append_elem({elem})".format(elem=elem))
+        self.push_max(elem)
+        #start cases, cannot simply put this logic in the logic 
+        #that follows, the smaller half is the default half
+        #if(self.len_min()==0 and self.len_max()==0):
+        #    self.push_max(elem)
+        #    return
 
         #decide where to put it
-        if(elem<=self.get_max()): #fits in the smallest half
-            self.push_max(elem)
-        elif(self.len_min>0 or elem>=self.get_min()): #fits in the biggest half
-            self.push_min(elem)
-        else:
-            raise Exception()
+        #if(elem<=self.get_max()): 
+        #    #fits in the smallest half
+        #    self.push_max(elem)
+        #elif(self.len_min()==0 or elem>=self.get_min()): 
+        #    #fits in the biggest half
+        #    self.push_min(elem)
+        #else:
+        #    raise Exception()
 
         #rebalance the heaps #NOTE can only be unbalanced by one 
-        if(abs(self.len_max()-self.len_min())>1): #unbalanced, let's go ``robin hood''
+        if(abs(self.len_max()-self.len_min())>1): 
+            print("b4=",self)
+            #unbalanced, let's go ``robin hood''
             if(self.len_min()<self.len_max()):
                 self.push_min(self.pop_max()) 
             elif(self.len_max()<self.len_min()):
                 self.push_max(self.pop_min()) 
             else:
                 raise Exception()
-
+            print("af=",self)
 
     def __str__(self):
         """shows both heaps flatted out with each others roots touching"""
-        return "{max_heap_reversed}|{min_heap}".format(
-            max_heap_reversed=map(
-                op.neg,
-                reversed(self.max_heap)
-            ), 
-            min_heap=self.min_heap
+        return "{max_heap}|{min_heap}".format(
+            max_heap=self.view_max(), 
+            min_heap=self.view_min()
         )
+    def __repr__(self):
+        return self.__str__()
 
     def median(self):
         """O(1)"""
         if( self.len_min()+self.len_max()==0 ): #has elements at all
             raise Exception()
         elif( self.len_min()==self.len_max() ):
-            return float(self.get_max()+self.get_min())/2 
+            return float(self.get_min()+self.get_max())/2 
         elif( self.len_min()<self.len_max() ):
             return float(self.get_max()) 
         elif( self.len_max()<self.len_min() ):
@@ -92,27 +103,43 @@ class median_tracker(object):
             raise Exception()
 
 
-ref_median = utils.median
 
-test_list = [1,2,3,4,5,6,7,8]
-mt = median_tracker(*test_list)
+mt = median_tracker(1,2,3,4,5,6,7,8)
+mt.median()
+mt = median_tracker(1,2,3,4,5,6,7)
+mt.median()
+
+
+ref_median = utils.median
 
 def random_list(size, domain=(-2,2)):
     return (rndm.uniform(domain[0], domain[1]) for i in range(size))
+
+testsuite_size = 1
+max_test_size = 5
 
 tests = map(
     random_list,
     it.chain.from_iterable(
         map(
-            lambda size: it.repeat(size, 64),
-            range(1,64)
+            lambda size: it.repeat(size, testsuite_size),
+            range(1,max_test_size)
         )
     )
 )
 
 def measure_test(test):
     """measures absolut error"""
-    return abs(ref_median(*test)- median_tracker(*test).median())
+    test = list(test)
+    ref = ref_median(*test) 
+    tracker = median_tracker(*test)
+    tracker_median = tracker.median() 
+    err = abs(ref-tracker_median)
+    if(err>0.01 and False):
+        print(test)
+        print(tracker)
+        print(ref,"vs.",tracker_median)
+    return err
 
 print("sum(|error|)={error}".format(
     error=sum(

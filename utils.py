@@ -22,6 +22,17 @@ def tee(a):
     print(a)
     return a
 
+def inner_zip(a):
+    """returns adjacent elements in pairs 
+    example: a->(a[0],a[1]),(a[1],a[2]),..,(a[n-1],a[n]) """
+    return filter(
+        lambda pair: None not in pair, #removes the unmatched edges
+        it.zip_longest(
+            [None,]+a, #a with offset
+            a
+        )
+    )
+
 def render_heap(heap, heap_width=128):
     # k->(2k+1,2k+2)
     largest_element = len(max(map(str,heap), key=len))

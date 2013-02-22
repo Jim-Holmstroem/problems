@@ -28,8 +28,19 @@ def inner_zip(a):
     return filter(
         lambda pair: None not in pair, #removes the unmatched edges
         it.zip_longest(
-            [None,]+a, #a with offset
+            [None,]+list(a), #a with offset
             a
+        )
+    )
+
+def equal(*things):
+    """check if all things are the same"""
+    return all(
+        it.starmap(
+            op.eq,
+            inner_zip(
+                things
+            )
         )
     )
 

@@ -22,6 +22,13 @@ def tee(a):
     print(a)
     return a
 
+def bitcount(a):
+    count=0
+    while(a):
+        a&=(a-1) #x10...0=>x0...0 see bit_manipulation/nminus1.py for further explaination
+        count+=1
+    return count
+
 def composition(f, *g):
     if(g):
         return lambda *x: f(composition(*g)(*x))

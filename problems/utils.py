@@ -22,6 +22,12 @@ def tee(a):
     print(a)
     return a
 
+def composition(f, *g):
+    if(g):
+        return lambda *x: f(composition(*g)(*x))
+    else:
+        return f
+
 def inner_zip(a):
     """returns adjacent elements in pairs 
     example: a->(a[0],a[1]),(a[1],a[2]),..,(a[n-1],a[n]) """

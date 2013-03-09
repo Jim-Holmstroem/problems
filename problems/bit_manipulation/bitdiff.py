@@ -5,10 +5,18 @@ def bitdiff(a, b):
     return bitcount(a^b) #count the bits that differs
 
 testcases = [
-    ([0b1,0b0],1),
+    ([ 0b101, 0b010], 3),
+    ([ 0b110, 0b011], 2),
+    ([0b1101,0b0110], 3),
 ]+list(map(
+    lambda x: ([(1<<x)-1, 0b0], x), #all against nothing
+    range(128)
+))+list(map(
+    lambda x: ([x, 0b0], bitcount(x)), #against zero
+    range(4096)
+))+list(map(
     lambda x: ([x, x], 0), #id cases
-    range(32)
+    range(4096)
 ))
 
 def test(testcase):

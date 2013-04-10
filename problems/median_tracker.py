@@ -18,7 +18,7 @@ class median_tracker(object):
     max_heap = contains the smaller half
 
     median = O(1)
-    append = O(log(n))
+    append = O(log(n)) (per element)
     """
     def __init__(self, *elems):
         self.min_heap = []
